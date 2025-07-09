@@ -1,7 +1,7 @@
 import Image from "next/image";
 
 interface Props {
-  params: { owner: string; repo: string };
+  params: Promise<{ owner: string; repo: string }>;
 }
 
 export default async function RepoDetail({ params }: Props) {
