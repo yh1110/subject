@@ -5,7 +5,7 @@ interface Props {
 }
 
 export default async function RepoDetail({ params }: Props) {
-  const { owner, repo } = params;
+  const { owner, repo } = await params;
   const token = process.env.GITHUB_TOKEN;
   const res = await fetch(`https://api.github.com/repos/${owner}/${repo}`, {
     headers: {
