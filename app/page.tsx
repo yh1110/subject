@@ -34,6 +34,7 @@ import {
   CalendarIcon,
   ExternalLinkIcon,
 } from "@yamada-ui/lucide";
+import { formatDate, formatNumber } from "@/lib/formatters";
 
 type SearchForm = {
   q: string;
@@ -101,21 +102,6 @@ export default function SearchPage() {
     } finally {
       setLoading(false);
     }
-  };
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("ja-JP", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    });
-  };
-
-  const formatNumber = (num: number) => {
-    if (num >= 1000) {
-      return (num / 1000).toFixed(1) + "k";
-    }
-    return num.toString();
   };
 
   // 検証用

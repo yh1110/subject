@@ -25,6 +25,7 @@ import {
   Users,
   ExternalLink,
 } from "lucide-react";
+import { formatDate, formatNumber, formatSize } from "@/lib/formatters";
 
 interface Props {
   params: Promise<{ owner: string; repo: string }>;
@@ -75,27 +76,6 @@ export default async function RepoDetail({ params }: Props) {
   if (!res.ok) throw new Error("Repository not found");
   const data: RepoData = await res.json();
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("ja-JP", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    });
-  };
-
-  const formatNumber = (num: number) => {
-    if (num >= 1000) {
-      return (num / 1000).toFixed(1) + "k";
-    }
-    return num.toString();
-  };
-
-  const formatSize = (kilobytes: number) => {
-    if (kilobytes >= 1024) {
-      return (kilobytes / 1024).toFixed(1) + " MB";
-    }
-    return kilobytes + " KB";
-  };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-950">
