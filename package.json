@@ -9,7 +9,11 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@radix-ui/react-avatar": "^1.1.10",
+    "@radix-ui/react-slot": "^1.2.3",
+    "@radix-ui/react-tabs": "^1.1.12",
     "@yamada-ui/core": "^1.17.3",
+    "@yamada-ui/lucide": "^1.10.5",
     "@yamada-ui/react": "^1.7.7",
     "@yamada-ui/utils": "^1.7.2",
     "class-variance-authority": "^0.7.1",
