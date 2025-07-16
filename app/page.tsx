@@ -1,91 +1,42 @@
 "use client";
 
-import { useRef, useState } from "react";
-import Link from "next/link";
-import { useForm } from "react-hook-form";
+import { useState } from "react";
 import {
-  Button,
-  Card,
-  CardBody,
-  CardHeader,
   Container,
   Grid,
   Heading,
-  InfiniteScrollArea,
-  Input,
   Text,
   VStack,
   HStack,
-  Avatar,
-  InputGroup,
-  InputLeftElement,
   Skeleton,
   SkeletonCircle,
-  IconButton,
-  Loading,
-  Tag,
+  Card,
+  CardHeader,
+  CardBody,
   UIProvider,
 } from "@yamada-ui/react";
-import {
-  SearchIcon,
-  StarIcon,
-  GitForkIcon,
-  EyeIcon,
-  CalendarIcon,
-  ExternalLinkIcon,
-} from "@yamada-ui/lucide";
-import { formatDate, formatNumber } from "@/lib/formatters";
-
-type SearchForm = {
-  q: string;
-};
-
-interface Repo {
-  id: number;
-  name: string;
-  full_name: string;
-  description: string | null;
-  stargazers_count: number;
-  forks_count: number;
-  watchers_count: number;
-  language: string;
-  updated_at: string;
-  owner: {
-    login: string;
-    avatar_url: string;
-  };
-}
+import { SearchForm, SearchFormData } from "@/components/SearchForm";
+import { SearchResults, Repo } from "@/components/SearchResults";
 
 export default function SearchPage() {
   const [repos, setRepos] = useState<Repo[]>([]);
   const [query, setQuery] = useState<string>("");
-  const resetRef = useRef<() => void>(() => {});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [searched, setSearched] = useState(false);
   const [totalCount, setTotalCount] = useState(0);
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-    watch,
-  } = useForm<SearchForm>({
-    defaultValues: { q: "" },
-  });
-
-  const onSubmit = async ({ q }: SearchForm) => {
+  const handleSearch = async ({ q }: SearchFormData) => {
     if (!q.trim()) return;
 
     setLoading(true);
     setRepos([]);
     setQuery(q);
     setError(null);
-    resetRef.current();
+    
     try {
       const res = await fetch(`/api/search?q=${encodeURIComponent(q)}`);
       const json = await res.json();
-      console.log("Search results:", json);
 
       setRepos(json.items ?? []);
       setTotalCount(json.total_count || 0);
@@ -104,9 +55,13 @@ export default function SearchPage() {
     }
   };
 
-  // 検証用
-  console.log("Current search query:", watch("q"));
-  console.log("set search query:", query);
+  const handleLoadMore = async (page: number): Promise<Repo[]> => {
+    const res = await fetch(
+      `/api/search?q=${encodeURIComponent(query)}&page=${page}`
+    );
+    const json = await res.json();
+    return json.items ?? [];
+  };
 
   return (
     <UIProvider>
@@ -121,184 +76,26 @@ export default function SearchPage() {
           </Text>
         </Container>
 
-        {/* 検索欄 */}
-        <Container centerContent py={0}>
-          <Card maxW="3xl" shadow="lg" size={{ base: "lg", sm: "md" }} w="full">
-            <CardBody p="6">
-              <form onSubmit={handleSubmit(onSubmit)} className="w-full">
-                <HStack gap="4">
-                  <InputGroup flex="1">
-                    <InputLeftElement>
-                      <SearchIcon fontSize={20} />
-                    </InputLeftElement>
-                    <Input
-                      {...register("q", { required: "キーワードは必須です" })}
-                      placeholder="キーワードを入力してください"
-                      pl="12"
-                    />
-                  </InputGroup>
-                  <Button type="submit" disabled={loading} px="8">
-                    {loading ? "検索中..." : "検索"}
-                  </Button>
-                </HStack>
-              </form>
-            </CardBody>
-          </Card>
-        </Container>
+        {/* 検索フォーム */}
+        <SearchForm onSubmit={handleSearch} loading={loading} />
 
-        {/* エラー */}
-        {errors.q && (
-          <Text color="red.500" textAlign="center" mb="4">
-            {errors.q.message}
-          </Text>
-        )}
+        {/* API エラー */}
         {error && (
-          <Text color="red.500" textAlign="center" mb="4">
+          <Text color="red.500" textAlign="center" mb="4" data-testid="api-error">
             {error}
           </Text>
         )}
 
-        {/* 総リポジトリ数 */}
-        {searched && !loading && (
-          <Text textAlign="center" mb="6">
-            Found {totalCount.toLocaleString()} repositories
-          </Text>
-        )}
-
-        {/* リポジトリ一覧 */}
-        {repos.length > 0 && (
-          <InfiniteScrollArea
-            resetRef={resetRef}
-            onLoad={async ({ finish, index }) => {
-              const nextPage = Math.floor(repos.length / 20) + 1;
-              const res = await fetch(
-                `/api/search?q=${encodeURIComponent(query)}&page=${nextPage}`
-              );
-              console.log(index, "Loading page:", nextPage);
-              const json = await res.json();
-              const items: Repo[] = json.items ?? [];
-              setRepos((prev) => [...prev, ...items]);
-              if (items.length < 20) {
-                finish();
-              }
-            }}
-            loading={<Loading variant="dots" fontSize="5xl" />}
-          >
-            <Grid
-              templateColumns={{
-                base: "repeat(3, 1fr)",
-                md: "repeat(2, 1fr)",
-                sm: "repeat(1, 1fr)",
-              }}
-              gap="6"
-            >
-              {repos.map((repo) => (
-                <Link
-                  key={repo.id}
-                  href={`/repos/${repo.owner.login}/${
-                    repo.full_name.split("/")[1]
-                  }`}
-                  target="_blank"
-                >
-                  <Card
-                    _hover={{
-                      shadow: "xl",
-                      transform: "translateY(-4px)",
-                    }}
-                    transition="all 0.3s"
-                    cursor="pointer"
-                  >
-                    <CardHeader pb="3" w="full">
-                      <HStack justify="space-between" align="start" w="full">
-                        <HStack gap="3" minW="0" flex="1">
-                          <Avatar
-                            src={repo.owner.avatar_url}
-                            name={repo.owner.login}
-                            size="sm"
-                          />
-                          <VStack align="start" minW="0" flex="1" gap="0">
-                            <Heading size="md" lineClamp={1}>
-                              {repo.name}
-                            </Heading>
-                            <Text fontSize="sm" color="gray.500">
-                              {repo.owner.login}
-                            </Text>
-                          </VStack>
-                        </HStack>
-
-                        <IconButton
-                          aria-label="GitHub detail"
-                          icon={<ExternalLinkIcon fontSize={16} />}
-                          variant="ghost"
-                          size="sm"
-                          transition="opacity 0.2s"
-                        />
-                      </HStack>
-                    </CardHeader>
-                    <CardBody pt="0">
-                      <Text fontSize="sm" lineClamp={3} minH="3rem">
-                        {repo.description || "(No description)"}
-                      </Text>
-
-                      <HStack gap="4" mt="4" fontSize="sm" color="gray.500">
-                        <HStack gap="1">
-                          <StarIcon fontSize={16} />
-                          <Text>{formatNumber(repo.stargazers_count)}</Text>
-                        </HStack>
-                        <HStack gap="1">
-                          <GitForkIcon fontSize={16} />
-                          <Text>{formatNumber(repo.forks_count)}</Text>
-                        </HStack>
-                        <HStack gap="1">
-                          <EyeIcon fontSize={16} />
-                          <Text>{formatNumber(repo.watchers_count)}</Text>
-                        </HStack>
-                      </HStack>
-
-                      <HStack justify="space-between" mt="4">
-                        {repo.language && (
-                          <Tag variant="subtle" fontSize="xs">
-                            {repo.language}
-                          </Tag>
-                        )}
-                        <HStack gap="1" fontSize="xs" color="gray.500">
-                          <CalendarIcon fontSize={12} />
-                          <Text>{formatDate(repo.updated_at)}</Text>
-                        </HStack>
-                      </HStack>
-
-                      <Button
-                        variant="outline"
-                        w="full"
-                        mt="4"
-                        colorScheme="gray"
-                      >
-                        詳細を見る
-                      </Button>
-                    </CardBody>
-                  </Card>
-                </Link>
-              ))}
-            </Grid>
-          </InfiniteScrollArea>
-        )}
-
-        {/* 検索結果無し */}
-        {searched && repos.length === 0 && !loading && (
-          <Container centerContent>
-            <HStack color="gray.700">
-              <Text fontSize="6xl" mb="4">
-                🔍
-              </Text>
-              <Heading size="xl" mb="2">
-                キーワードに一致するリポジトリは存在しません
-              </Heading>
-            </HStack>
-            <Text color="gray.500">
-              別のキーワードで再度検索しなおしてください
-            </Text>
-          </Container>
-        )}
+        {/* 検索結果 */}
+        <SearchResults
+          repos={repos}
+          totalCount={totalCount}
+          query={query}
+          loading={loading}
+          searched={searched}
+          onLoadMore={handleLoadMore}
+          onSetRepos={setRepos}
+        />
 
         {/* ローディングスケルトン */}
         {loading && repos.length === 0 && (
@@ -309,6 +106,7 @@ export default function SearchPage() {
               sm: "repeat(1, 1fr)",
             }}
             gap="6"
+            data-testid="loading-skeleton"
           >
             {[...Array(6)].map((_, i) => (
               <Card key={i}>

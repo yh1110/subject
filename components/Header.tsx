@@ -10,7 +10,7 @@ export default function Header() {
           className="flex items-center gap-3 hover:opacity-80 transition-opacity"
         >
           <div className="flex items-center justify-center w-10 h-10 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-lg">
-            <GithubIcon className="h-6 w-6 text-white" />
+            <GithubIcon className="h-6 w-6 text-white" data-testid="github-icon" />
           </div>
           <div className="flex flex-col">
             <h1 className="text-xl font-bold text-gray-900 dark:text-white">
