@@ -21,7 +21,11 @@ vi.mock("next/navigation", () => ({
 
 // Next.js Link のモック
 vi.mock("next/link", () => ({
-  default: ({ children, href, ...props }: any) => (
+  default: ({
+    children,
+    href,
+    ...props
+  }: React.PropsWithChildren<{ href: string; [key: string]: unknown }>) => (
     <a href={href} data-testid="header-link" {...props}>
       {children}
     </a>
