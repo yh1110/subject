@@ -1,36 +1,87 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# GitHub Repository Search Application
 
-## Getting Started
+GitHubのリポジトリを検索・閲覧できるWebアプリケーション
 
-First, run the development server:
+## 機能
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+### リポジトリ検索
+- キーワードによるリポジトリ検索
+- 検索結果のグリッド表示
+- スター数、フォーク数、ウォッチャー数の表示
+- 使用言語、最終更新日時の表示
+- 無限スクロールによる追加読み込み
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### リポジトリ詳細表示
+- リポジトリの詳細情報（説明、トピックス）
+- 統計情報ダッシュボード
+- Issue、Pull Request、Contributorsへのクイックアクセス
+- オーナー情報の表示
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 技術スタック
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- **Next.js 15.3.5**
+- **React 19.1.0**
+- **TypeScript**
+- **Tailwind CSS v4**
+- **Yamada UI**
+- **shadcn/ui**
+- **Vitest**
 
-## Learn More
+## 工夫した点・こだわったポイント
 
-To learn more about Next.js, take a look at the following resources:
+### 1. ユーザー体験の向上
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+#### 検索体験の向上
+- **無限スクロール**：ページネーションボタンを使わず、yamada-uiのコンポーネントを使用してスクロールするだけで追加のリポジトリを自動読み込み
+- **スケルトンローディング**：データ取得中も画面がガタつかず、スムーズな表示切り替えを実現
+- **別タブ表示**：詳細ページを別タブで開くことで、検索ページでの結果を保持
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+#### レスポンシブデザイン
+- モバイルファーストで設計し、画面サイズに応じた柔軟なグリッドレイアウト
+- ヘッダーの説明文はモバイルで非表示にし、コンパクトな表示を実現
 
-## Deploy on Vercel
+### 2. パフォーマンスの最適化
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+#### キャッシュ戦略
+- リポジトリ詳細ページは1時間キャッシュして、API呼び出しを削減
+- サーバーコンポーネントで実装することでページ全体のキャッシュを保持
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+#### コード分割とバンドルサイズ最適化
+- 検索画面（Yamada UI）と詳細画面（shadcn/ui）で異なるUIライブラリを使い分け、必要なコンポーネントのみをロード
+
+### 3. 堅牢な実装
+
+#### エラーハンドリング
+- API エラー時は日本語でわかりやすいエラーメッセージを表示
+- 検索結果が0件の場合も、親切なメッセージで次のアクションを促す
+- ネットワークエラーやGitHub APIのレート制限にも対応
+
+#### 型安全性
+- TypeScript による完全な型定義で、実行時エラーを未然に防止
+- APIレスポンスの型定義により、データの整合性を保証
+
+### 4. SEO とメタデータ
+
+#### 動的メタデータ生成
+- リポジトリ詳細ページでは、各リポジトリの情報を元に動的にメタデータを生成
+- OpenGraphとTwitter Cardに対応し、SNSでのシェア時に魅力的な表示
+
+#### 検索エンジン最適化
+- 適切なtitleタグとdescriptionの設定
+- canonical URLの指定
+- robotsメタタグによる適切なクロール制御
+
+### 5. デザインのこだわり
+
+#### モダンな UI
+- クライアントページにはyamda-uiを採用し、サーバーコンポーネントにはshadcn/uiを採用
+
+#### 細部
+- 数値の表示は「1.2k」のように読みやすくフォーマット
+- リポジトリに説明がない場合も「(説明なし)」と表示して、空白を避ける
+
+## AIを活用した取り組み
+
+- UI部分はv0で草案を出力
+- claude codeを利用してlayout.tsxのmeta dataの作成や各コンポーネントの作成
+- copilotを利用したコード補完
