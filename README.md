@@ -83,5 +83,5 @@ GitHubのリポジトリを検索・閲覧できるWebアプリケーション
 ## AIを活用した取り組み
 
 - UI部分はv0で草案を出力
-- claude codeを利用してlayout.tsxのmeta dataの作成や各コンポーネントの作成
+- claude codeを利用してlayout.tsxのmeta dataの作成や各コンポーネントの作成、テストコードの作成
 - copilotを利用したコード補完
