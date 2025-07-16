@@ -164,6 +164,7 @@ export default function SearchPage() {
             Found {totalCount.toLocaleString()} repositories
           </Text>
         )}
+
         {/* リポジトリ一覧 */}
         {repos.length > 0 && (
           <InfiniteScrollArea

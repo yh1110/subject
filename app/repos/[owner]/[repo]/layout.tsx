@@ -6,7 +6,7 @@ interface Props {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { owner, repo } = await params;
-  
+
   try {
     const token = process.env.GITHUB_TOKEN;
     const res = await fetch(`https://api.github.com/repos/${owner}/${repo}`, {
@@ -28,9 +28,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const data = await res.json();
 
     const title = `${data.full_name} - GitHub Repository`;
-    const description = data.description 
-      ? `${data.description} - ${data.language ? `Built with ${data.language}` : ''} | ${data.stargazers_count} stars, ${data.forks_count} forks`
-      : `GitHub repository ${data.full_name} - ${data.language ? `Built with ${data.language}` : ''} | ${data.stargazers_count} stars, ${data.forks_count} forks`;
+    const description = data.description
+      ? `${data.description} - ${
+          data.language ? `Built with ${data.language}` : ""
+        } | ${data.stargazers_count} stars, ${data.forks_count} forks`
+      : `GitHub repository ${data.full_name} - ${
+          data.language ? `Built with ${data.language}` : ""
+        } | ${data.stargazers_count} stars, ${data.forks_count} forks`;
 
     return {
       title,
@@ -61,7 +65,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       openGraph: {
         type: "website",
         locale: "ja_JP",
-        url: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/repos/${owner}/${repo}`,
+        url: `${
+          process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"
+        }/repos/${owner}/${repo}`,
         title,
         description,
         siteName: "GitHub Repository Search",
@@ -82,7 +88,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         images: [data.owner.avatar_url],
       },
       alternates: {
-        canonical: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/repos/${owner}/${repo}`,
+        canonical: `${
+          process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"
+        }/repos/${owner}/${repo}`,
       },
     };
   } catch (error) {
